@@ -6,7 +6,36 @@ import { bresenhamLine, rectPoints } from '../utils/geometry'
 import { isValidHex, normalizeHex } from '../utils/color'
 
 const STORAGE_KEY = 'glyph-drawer-state-v1'
-const defaultPalette = ['#0f172a', '#ffffff', '#111827', '#2563eb', '#22c55e', '#eab308', '#ef4444', '#a855f7']
+const defaultPalette = [
+  '#000000',
+  '#0000aa',
+  '#00aa00',
+  '#00aaaa',
+  '#aa0000',
+  '#aa00aa',
+  '#ffaa00',
+  '#aaaaaa',
+  '#555555',
+  '#5555ff',
+  '#55ff55',
+  '#55ffff',
+  '#ff5555',
+  '#ff55ff',
+  '#ffff55',
+  '#ffffff',
+  '#ddd605',
+  '#e3d4d1',
+  '#cecaca',
+  '#443a3b',
+  '#971607',
+  '#b4684d',
+  '#deb12d',
+  '#47a036',
+  '#2cbaa8',
+  '#21497b',
+  '#9a5cc6',
+  '#eb7114',
+]
 
 function emptyLayer(id: LayerId, size: number, name: string): Layer {
   return {

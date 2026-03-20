@@ -19,7 +19,7 @@
 
   const setSize = (size: number) => {
     canvasStore.setSize(size)
-    toastStore.push(`Canvas ${size}×${size}`, 'info')
+    toastStore.push(`Canvas ${size}x${size}`, 'info')
   }
 
   function handleCustomSize() {

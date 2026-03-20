@@ -6,7 +6,7 @@ describe('UI smoke', () => {
     const target = document.createElement('div')
     document.body.appendChild(target)
     const comp = new EmptyState({ target })
-    expect(target.textContent).toContain('Bat dau ve pixel')
+    expect(target.textContent).toContain('Start drawing pixels')
     comp.$destroy?.()
   })
 })

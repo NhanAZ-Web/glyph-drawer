@@ -13,7 +13,7 @@
 <div class="stack">
   <div class="section-title">
     <span>Layers</span>
-    <span class="pill">N?n + v?</span>
+    <span class="pill">Background + paint</span>
   </div>
   {#each layers as layer (layer.id)}
     <div class="row" style="justify-content: space-between; align-items: center;">
@@ -26,7 +26,7 @@
         />
         <div>
           <div style="font-weight: 600">{layer.name}</div>
-          <div class="tooltip">{layer.visible ? 'Hi?n th?' : '?n'} · {Math.round(layer.opacity * 100)}%</div>
+          <div class="tooltip">{layer.visible ? 'Visible' : 'Hidden'} · {Math.round(layer.opacity * 100)}%</div>
         </div>
       </div>
       <label class="toggle" style="padding: 6px 10px">

@@ -109,14 +109,14 @@
       const picked = compositeLayers(state.layers, cell.x, cell.y)
       if (picked) {
         canvasStore.setColor(picked)
-        toastStore.push(`Chon mau ${picked}`, 'info')
+        toastStore.push(`Picked color ${picked}`, 'info')
       }
       isPointerDown = false
       return
     }
     if (state.tool === 'fill') {
       canvasStore.applyFill(cell.x, cell.y)
-      toastStore.push('Fill vung', 'info')
+      toastStore.push('Filled area', 'info')
       isPointerDown = false
       return
     }

@@ -11,7 +11,7 @@
   const redo = () => canvasStore.redo()
   const clear = () => {
     canvasStore.newDocument(state.size)
-    toastStore.push('Canvas moi', 'info')
+    toastStore.push('New canvas', 'info')
   }
 </script>
 
@@ -23,9 +23,9 @@
   <Toolbar tool={state.tool} />
 
   <div class="row" style="gap: 8px;">
-    <button class="btn" on:click={undo}>? Undo</button>
-    <button class="btn" on:click={redo}>? Redo</button>
-    <button class="btn ghost" on:click={clear}>N Canvas</button>
+    <button class="btn" on:click={undo}>Undo</button>
+    <button class="btn" on:click={redo}>Redo</button>
+    <button class="btn ghost" on:click={clear}>New Canvas</button>
   </div>
 
   <div class="divider"></div>

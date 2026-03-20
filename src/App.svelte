@@ -76,7 +76,7 @@
         break
       case 'n':
         canvasStore.newDocument(16)
-        toastStore.push('Canvas moi 16x16', 'info')
+        toastStore.push('New 16x16 canvas', 'info')
         break
       default:
         break
@@ -92,12 +92,12 @@
     a.download = `glyph-${snapshot.size}.json`
     a.click()
     URL.revokeObjectURL(url)
-    toastStore.push('Da luu nhanh JSON (Ctrl/Cmd+S)', 'success')
+    toastStore.push('Quick-saved JSON (Ctrl/Cmd+S)', 'success')
   }
 </script>
 
 <svelte:head>
-  <title>glyph-drawer Â· pixel to glyph uploader</title>
+  <title>glyph-drawer - pixel to glyph uploader</title>
   <meta name="description" content="Pixel/icon mini editor, ready to export to glyph." />
 </svelte:head>
 
@@ -113,7 +113,7 @@
     <div class="row">
       <button class="btn" on:click={() => themeStore.toggle()}>{theme === 'light' ? 'Dark' : 'Light'} mode</button>
       <button class="btn ghost" on:click={() => canvasStore.toggleGrid()}>Grid</button>
-      <button class="btn ghost" on:click={() => canvasStore.toggleChecker()}>Caro</button>
+      <button class="btn ghost" on:click={() => canvasStore.toggleChecker()}>Checker</button>
     </div>
   </div>
 

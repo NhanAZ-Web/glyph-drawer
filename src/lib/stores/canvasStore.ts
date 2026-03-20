@@ -37,7 +37,7 @@ function loadSaved(): EditorState | null {
     const size = parsed.size ?? 16
     const layers = parsed.layers?.length
       ? parsed.layers.map((layer) => ({ ...layer, data: resizeMatrix(layer.data, size) }))
-      : [emptyLayer('background', size, 'Nen'), emptyLayer('paint', size, 'Layer ve')]
+      : [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')]
     return { ...parsed, size, layers, history: { past: [], future: [] } }
   } catch (error) {
     console.warn('Failed to load saved state', error)
@@ -57,7 +57,7 @@ function createInitialState(): EditorState {
     currentColor: defaultPalette[0],
     grid: true,
     checker: true,
-    layers: [emptyLayer('background', size, 'Nen'), emptyLayer('paint', size, 'Layer ve')],
+    layers: [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')],
     activeLayerId: 'paint',
     autosave: true,
   }
@@ -279,7 +279,7 @@ export const canvasStore = {
   newDocument(size = 16) {
     commit((draft) => {
       draft.size = size
-      draft.layers = [emptyLayer('background', size, 'Nen'), emptyLayer('paint', size, 'Layer ve')]
+      draft.layers = [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')]
       draft.palette = defaultPalette
       draft.currentColor = defaultPalette[0]
       draft.tool = 'brush'

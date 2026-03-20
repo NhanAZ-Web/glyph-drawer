@@ -15,11 +15,11 @@
   function add() {
     const normalized = normalizeHex(customColor)
     if (!isValidHex(normalized)) {
-      toastStore.push('Mau khong hop le', 'error')
+      toastStore.push('Invalid color', 'error')
       return
     }
     canvasStore.addPaletteColor(normalized)
-    toastStore.push('Da them mau', 'success')
+    toastStore.push('Added color', 'success')
   }
 </script>
 
@@ -30,13 +30,13 @@
         class={`color-swatch ${currentColor === color ? 'active' : ''}`}
         style={`background:${color}`}
         on:click={() => pick(color)}
-        aria-label={`Chon mau ${color}`}
+        aria-label={`Select color ${color}`}
         title={color}
       ></button>
     {/each}
   </div>
   <div class="row">
-    <input type="color" bind:value={customColor} aria-label="Mau moi" />
+    <input type="color" bind:value={customColor} aria-label="New color" />
     <input
       type="text"
       bind:value={customColor}
@@ -44,8 +44,8 @@
       placeholder="#000000"
       style="width:110px"
     />
-    <button class="btn" on:click={add}>+ Them</button>
+    <button class="btn" on:click={add}>+ Add</button>
   </div>
-  <div class="tooltip">Dang chon: {currentColor}</div>
+  <div class="tooltip">Selected: {currentColor}</div>
 </div>
 

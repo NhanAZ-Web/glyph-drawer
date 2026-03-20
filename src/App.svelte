@@ -60,8 +60,8 @@
         }
         break
       case 'n':
-        canvasStore.newDocument(16)
-        toastStore.push('New 16×16 canvas', 'info')
+        canvasStore.newDocument(32)
+        toastStore.push('New 32×32 canvas', 'info')
         break
       default:
         break

@@ -63,7 +63,7 @@ function loadSaved(): EditorState | null {
   if (!raw) return null
   try {
     const parsed = JSON.parse(raw) as Snapshot
-    const size = parsed.size ?? 16
+    const size = parsed.size ?? 32
     const layers = parsed.layers?.length
       ? parsed.layers.map((layer) => ({ ...layer, data: resizeMatrix(layer.data, size) }))
       : [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')]
@@ -77,7 +77,7 @@ function loadSaved(): EditorState | null {
 function createInitialState(): EditorState {
   const saved = loadSaved()
   if (saved) return saved
-  const size = 16
+  const size = 32
   const base: Snapshot = {
     size,
     zoom: 18,
@@ -276,7 +276,7 @@ export const canvasStore = {
       }))
     })
   },
-  newDocument(size = 16) {
+  newDocument(size = 32) {
     commit((draft) => {
       draft.size = size
       draft.layers = [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')]

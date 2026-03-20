@@ -56,10 +56,8 @@ function createInitialState(): EditorState {
     palette: defaultPalette,
     currentColor: defaultPalette[0],
     grid: true,
-    checker: true,
     layers: [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')],
     activeLayerId: 'paint',
-    autosave: true,
   }
   return { ...base, history: { past: [], future: [] } }
 }
@@ -75,10 +73,9 @@ function persist(snapshot: Snapshot) {
   }
 }
 
+// Always autosave
 store.subscribe((state) => {
-  if (state.autosave) {
-    persist(snapshotFromState(state))
-  }
+  persist(snapshotFromState(state))
 })
 
 function commit(mutator: (draft: EditorState) => void, pushHistory = true) {
@@ -162,27 +159,20 @@ export const canvasStore = {
     }, false)
   },
   setSize(size: number) {
-    commit((draft) => {
-      draft.size = size
-      draft.layers = draft.layers.map((layer) => ({
+    store.update((state) => {
+      const next = deepCopy({ ...state, history: { past: [], future: [] } }) as EditorState
+      next.size = size
+      next.layers = next.layers.map((layer) => ({
         ...layer,
         data: resizeMatrix(layer.data, size),
       }))
+      next.history = { past: [], future: [] }
+      return next
     })
-  },
-  setZoom(zoom: number) {
-    commit((draft) => {
-      draft.zoom = Math.min(40, Math.max(8, zoom))
-    }, false)
   },
   toggleGrid() {
     commit((draft) => {
       draft.grid = !draft.grid
-    }, false)
-  },
-  toggleChecker() {
-    commit((draft) => {
-      draft.checker = !draft.checker
     }, false)
   },
   setActiveLayer(id: LayerId) {
@@ -247,11 +237,6 @@ export const canvasStore = {
       return next
     })
   },
-  setAutosave(value: boolean) {
-    commit((draft) => {
-      draft.autosave = value
-    }, false)
-  },
   importMatrix(matrix: PixelMatrix) {
     commit((draft) => {
       const size = matrix.length
@@ -260,20 +245,6 @@ export const canvasStore = {
         ...layer,
         data: resizeMatrix(layer.id === draft.activeLayerId ? matrix : layer.data, size),
       }))
-    })
-  },
-  importJSON(payload: { size: number; layers: { id: LayerId; data: PixelMatrix }[]; palette?: string[] }) {
-    commit((draft) => {
-      const size = payload.size ?? draft.size
-      draft.size = size
-      draft.palette = payload.palette ?? draft.palette
-      draft.layers = draft.layers.map((layer) => {
-        const incoming = payload.layers.find((l) => l.id === layer.id)
-        return {
-          ...layer,
-          data: resizeMatrix(incoming ? incoming.data : layer.data, size),
-        }
-      })
     })
   },
   newDocument(size = 16) {

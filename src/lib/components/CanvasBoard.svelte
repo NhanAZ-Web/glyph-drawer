@@ -1,5 +1,5 @@
-﻿<script lang="ts">
-  import { onDestroy } from 'svelte'
+<script lang="ts">
+  import { onDestroy, onMount } from 'svelte'
   import { get } from 'svelte/store'
   import { canvasStore } from '../stores/canvasStore'
   import type { EditorState } from '../types'
@@ -13,14 +13,42 @@
   onDestroy(unsubscribe)
 
   let canvas: HTMLCanvasElement
+  let container: HTMLElement
   let ctx: CanvasRenderingContext2D | null = null
   let isPointerDown = false
   let gesturePoints: Array<{ x: number; y: number }> = []
   let startPoint: { x: number; y: number } | null = null
   let previewPoints: Array<[number, number]> = []
   let hoverCell: { x: number; y: number } | null = null
+  let pixelSize = 18
 
   $: renderCanvas(state, previewPoints, hoverCell)
+
+  function computePixelSize(size: number): number {
+    if (!container) return 18
+    const rect = container.getBoundingClientRect()
+    const padding = 16
+    const available = Math.min(rect.width, rect.height) - padding * 2
+    return Math.max(4, Math.floor(available / size))
+  }
+
+  onMount(() => {
+    pixelSize = computePixelSize(state.size)
+    renderCanvas(state, previewPoints, hoverCell)
+    let rafId: number
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        pixelSize = computePixelSize(state.size)
+        renderCanvas(state, previewPoints, hoverCell)
+      })
+    })
+    observer.observe(container)
+    return () => {
+      cancelAnimationFrame(rafId)
+      observer.disconnect()
+    }
+  })
 
   function getCellFromEvent(event: PointerEvent) {
     if (!canvas) return null
@@ -34,7 +62,7 @@
   }
 
   function renderCanvas(_state = state, _preview = previewPoints, _hover = hoverCell) {
-    if (!canvas || !state) return
+    if (!canvas || !state || !container) return
     if (!ctx) ctx = canvas.getContext('2d', { desynchronized: true })
     if (!ctx) return
 
@@ -44,7 +72,8 @@
     void _hover
 
     const size = state.size
-    const pixelSize = state.zoom
+    // Always recompute pixelSize from container to prevent stale values causing OOM
+    pixelSize = computePixelSize(size)
     const scale = window.devicePixelRatio || 1
     canvas.width = size * pixelSize * scale
     canvas.height = size * pixelSize * scale
@@ -68,6 +97,9 @@
       }
     })
 
+    // Reset alpha so grid/hover are not affected by layer opacity
+    context.globalAlpha = 1
+
     if (previewPoints.length) {
       context.globalAlpha = 0.55
       context.fillStyle = state.tool === 'eraser' ? 'rgba(255,255,255,0.6)' : state.currentColor
@@ -78,8 +110,11 @@
     }
 
     if (state.grid) {
+      const lineWidth = 1 / (scale * pixelSize)
+
+      // Regular grid lines
       context.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid')
-      context.lineWidth = 1 / (scale * pixelSize)
+      context.lineWidth = lineWidth
       for (let i = 0; i <= size; i += 1) {
         context.beginPath()
         context.moveTo(i, 0)
@@ -90,10 +125,27 @@
         context.lineTo(size, i)
         context.stroke()
       }
+
+      // Center guide lines (at midpoint)
+      const mid = size / 2
+      if (Number.isInteger(mid)) {
+        context.strokeStyle = 'rgba(91, 155, 255, 0.45)'
+        context.lineWidth = lineWidth * 2
+        // Vertical center
+        context.beginPath()
+        context.moveTo(mid, 0)
+        context.lineTo(mid, size)
+        context.stroke()
+        // Horizontal center
+        context.beginPath()
+        context.moveTo(0, mid)
+        context.lineTo(size, mid)
+        context.stroke()
+      }
     }
 
     if (hoverCell) {
-      context.strokeStyle = 'rgba(37, 99, 235, 0.6)'
+      context.strokeStyle = 'rgba(91, 155, 255, 0.7)'
       context.lineWidth = 1 / (scale * pixelSize)
       context.strokeRect(hoverCell.x, hoverCell.y, 1, 1)
     }
@@ -202,28 +254,26 @@
       previewPoints = pts
     }
   }
-
-  function handleWheel(event: WheelEvent) {
-    if (event.ctrlKey || event.metaKey) {
-      event.preventDefault()
-      const nextZoom = state.zoom + event.deltaY * -0.02
-      canvasStore.setZoom(nextZoom)
-    }
-  }
 </script>
 
-<div class="canvas-shell">
-  <div class="canvas-inner" class:grid-checker={state.checker} on:wheel|passive={handleWheel}>
-    <div class="canvas-stage">
-      <canvas
-        class="canvas-board"
-        bind:this={canvas}
-        on:pointerdown={handlePointerDown}
-        on:pointermove={handlePointerMove}
-        on:pointerup={handlePointerUp}
-        on:pointerleave={handlePointerLeave}
-      ></canvas>
-    </div>
+<div class="canvas-stage-wrapper" bind:this={container}>
+  <div class="canvas-stage">
+    <canvas
+      class="canvas-board"
+      bind:this={canvas}
+      on:pointerdown={handlePointerDown}
+      on:pointermove={handlePointerMove}
+      on:pointerup={handlePointerUp}
+      on:pointerleave={handlePointerLeave}
+    ></canvas>
   </div>
 </div>
 
+<style>
+  .canvas-stage-wrapper {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+</style>

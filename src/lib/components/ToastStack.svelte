@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import { onDestroy } from 'svelte'
   import type { Toast } from '../types'
   import { toastStore } from '../stores/toastStore'
@@ -11,11 +11,8 @@
 <div class="toast-stack">
   {#each toasts as toast (toast.id)}
     <div class={`toast ${toast.type}`}>
-      <span>{toast.message}</span>
-      <button class="btn ghost" style="padding: 6px 8px" on:click={() => toastStore.dismiss(toast.id)}>
-        ?
-      </button>
+      <span style="flex:1">{toast.message}</span>
+      <button class="btn ghost btn-icon btn-sm" on:click={() => toastStore.dismiss(toast.id)}>✕</button>
     </div>
   {/each}
 </div>
-

@@ -1,0 +1,19 @@
+{
+  "name": "glyph-drawer",
+  "short_name": "glyph-drawer",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#101620",
+  "background_color": "#101620",
+  "display": "standalone"
+}

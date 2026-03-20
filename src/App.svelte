@@ -1,18 +1,18 @@
-﻿<script lang="ts">
+<script lang="ts">
   import { onDestroy } from 'svelte'
   import { get } from 'svelte/store'
   import CanvasBoard from './lib/components/CanvasBoard.svelte'
   import Sidebar from './lib/components/Sidebar.svelte'
   import RightPanel from './lib/components/RightPanel.svelte'
   import ToastStack from './lib/components/ToastStack.svelte'
-  import GlyphModal from './lib/components/GlyphModal.svelte'
-  import EmptyState from './lib/components/EmptyState.svelte'
   import { canvasStore } from './lib/stores/canvasStore'
   import { themeStore, type Theme } from './lib/stores/uiStore'
   import { toastStore } from './lib/stores/toastStore'
-  import { combineVisibleLayers, isMatrixEmpty } from './lib/utils/matrix'
-  import { matrixToPng, snapshotToJsonBlob, visibleMatrixFromSnapshot } from './lib/utils/exporters'
-  import { uploadToGlyph } from './lib/api/uploadToGlyph'
+  import {
+    matrixToPng,
+    downloadBlob,
+    visibleMatrixFromSnapshot,
+  } from './lib/utils/exporters'
 
   let state = get(canvasStore)
   const unsub = canvasStore.subscribe((value) => (state = value))
@@ -21,21 +21,6 @@
   let theme: Theme = get(themeStore)
   const unsubTheme = themeStore.subscribe((value) => (theme = value))
   onDestroy(unsubTheme)
-
-  let glyphModalOpen = false
-
-  const isEmpty = () => isMatrixEmpty(combineVisibleLayers(state.layers))
-
-  async function handleSendToGlyph(format: 'png' | 'json') {
-    const snapshot = canvasStore.getSnapshot()
-    const payload =
-      format === 'png'
-        ? matrixToPng(visibleMatrixFromSnapshot(snapshot))
-        : snapshotToJsonBlob(snapshot)
-    const result = await uploadToGlyph(payload)
-    toastStore.push(result.message, 'success')
-    glyphModalOpen = false
-  }
 
   function handleKeydown(event: KeyboardEvent) {
     const { key, metaKey, ctrlKey, shiftKey } = event
@@ -71,66 +56,125 @@
       case 's':
         if (mod) {
           event.preventDefault()
-          quickSave()
+          quickExportPng()
         }
         break
       case 'n':
         canvasStore.newDocument(16)
-        toastStore.push('New 16x16 canvas', 'info')
+        toastStore.push('New 16×16 canvas', 'info')
         break
       default:
         break
     }
   }
 
-  function quickSave() {
+  function quickExportPng() {
     const snapshot = canvasStore.getSnapshot()
-    const blob = snapshotToJsonBlob(snapshot)
-    const a = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    a.href = url
-    a.download = `glyph-${snapshot.size}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-    toastStore.push('Quick-saved JSON (Ctrl/Cmd+S)', 'success')
+    const blob = matrixToPng(visibleMatrixFromSnapshot(snapshot), 1)
+    downloadBlob(blob, `glyph-${snapshot.size}.png`)
+    toastStore.push('Exported PNG (Ctrl+S)', 'success')
+  }
+
+  function capitalize(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1)
   }
 </script>
 
 <svelte:head>
-  <title>glyph-drawer - pixel to glyph uploader</title>
-  <meta name="description" content="Pixel/icon mini editor, ready to export to glyph." />
+  <title>glyph-drawer - pixel editor</title>
+  <meta name="description" content="Minimal pixel/icon editor. Draw and export PNG." />
 </svelte:head>
 
 <svelte:window on:keydown={handleKeydown} />
 
 <div class="main-shell">
-  <div class="topbar">
+  <!-- Menu Bar -->
+  <div class="menubar">
     <div class="brand">
-      <span style="width: 12px; height: 12px; border-radius: 50%; background: var(--accent);"></span>
+      <span class="brand-dot"></span>
       <span>glyph-drawer</span>
-      <span class="badge">client-only</span>
+      <span class="brand-badge">EDITOR</span>
     </div>
-    <div class="row">
-      <button class="btn" on:click={() => themeStore.toggle()}>{theme === 'light' ? 'Dark' : 'Light'} mode</button>
-      <button class="btn ghost" on:click={() => canvasStore.toggleGrid()}>Grid</button>
-      <button class="btn ghost" on:click={() => canvasStore.toggleChecker()}>Checker</button>
+    <div class="menubar-actions">
+      <button
+        class={`btn ghost ${state.grid ? 'active' : ''}`}
+        aria-pressed={state.grid}
+        on:click={() => canvasStore.toggleGrid()}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          ><path d="M3 3v18h18" /><path d="M9 3v18" /><path d="M15 3v18" /><path
+            d="M3 9h18"
+          /><path d="M3 15h18" /></svg
+        >
+        Grid
+      </button>
+      <button class="btn ghost" on:click={() => themeStore.toggle()}>
+        {#if theme === 'light'}
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            ><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" /></svg
+          >
+        {:else}
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            ><circle cx="12" cy="12" r="5" /><path
+              d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+            /></svg
+          >
+        {/if}
+      </button>
     </div>
   </div>
 
-  <div class="layout">
-    <Sidebar {state} />
+  <!-- Left Toolstrip -->
+  <Sidebar {state} />
 
-    <div class="panel" style="position: relative; overflow: hidden;">
-      {#if isEmpty()}
-        <EmptyState />
-      {/if}
-      <CanvasBoard />
+  <!-- Center Canvas -->
+  <div class="canvas-area">
+    <CanvasBoard />
+  </div>
+
+  <!-- Right Properties -->
+  <RightPanel {state} />
+
+  <!-- Status Bar -->
+  <div class="statusbar">
+    <div class="statusbar-item">
+      <span>Tool:</span>
+      <span class="statusbar-accent">{capitalize(state.tool)}</span>
     </div>
-
-    <RightPanel state={state} onOpenGlyphModal={() => (glyphModalOpen = true)} />
+    <div class="statusbar-item">
+      <span>Canvas:</span>
+      <span class="statusbar-accent">{state.size}×{state.size}</span>
+    </div>
+    <div class="statusbar-item">
+      <span>Color:</span>
+      <span class="statusbar-color-swatch" style="background:{state.currentColor};"
+      ></span>
+      <span class="statusbar-accent" style="font-family: var(--font-mono);"
+        >{state.currentColor}</span
+      >
+    </div>
   </div>
 </div>
 
-<GlyphModal open={glyphModalOpen} onClose={() => (glyphModalOpen = false)} onSend={handleSendToGlyph} />
 <ToastStack />
-

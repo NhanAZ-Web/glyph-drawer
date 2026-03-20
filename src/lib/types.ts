@@ -18,10 +18,8 @@ export interface Snapshot {
   palette: string[]
   currentColor: string
   grid: boolean
-  checker: boolean
   layers: Layer[]
   activeLayerId: LayerId
-  autosave: boolean
 }
 
 export interface EditorState extends Snapshot {
@@ -29,12 +27,6 @@ export interface EditorState extends Snapshot {
     past: Snapshot[]
     future: Snapshot[]
   }
-}
-
-export interface ExportedJSON {
-  size: number
-  palette: string[]
-  layers: { id: LayerId; data: PixelMatrix }[]
 }
 
 export type ToastType = 'success' | 'error' | 'info'

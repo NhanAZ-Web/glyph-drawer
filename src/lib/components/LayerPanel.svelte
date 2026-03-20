@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   import type { Layer, LayerId } from '../types'
   import { canvasStore } from '../stores/canvasStore'
 
@@ -11,45 +11,36 @@
 </script>
 
 <div class="stack">
-  <div class="section-title">
-    <span>Layers</span>
-    <span class="pill">Background + paint</span>
-  </div>
   {#each layers as layer (layer.id)}
-    <div class="row" style="justify-content: space-between; align-items: center;">
-      <div class="row">
-        <input
-          type="radio"
-          name="layer-active"
-          checked={layer.id === activeLayerId}
-          on:change={() => setActive(layer.id)}
-        />
-        <div>
-          <div style="font-weight: 600">{layer.name}</div>
-          <div class="tooltip">{layer.visible ? 'Visible' : 'Hidden'} · {Math.round(layer.opacity * 100)}%</div>
-        </div>
-      </div>
-      <label class="toggle" style="padding: 6px 10px">
-        <input
-          type="checkbox"
-          checked={layer.visible}
-          on:change={() => toggleVisibility(layer.id)}
-        />
-        <span>{layer.visible ? 'On' : 'Off'}</span>
-      </label>
-    </div>
-    <div class="slider-row">
+    <div class="layer-row">
       <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.05"
-        value={layer.opacity}
-        on:input={(event) => setOpacity(layer.id, parseFloat(event.currentTarget.value))}
+        type="radio"
+        name="layer-active"
+        checked={layer.id === activeLayerId}
+        on:change={() => setActive(layer.id)}
+        title="Set active layer"
       />
-      <span class="pill">{Math.round(layer.opacity * 100)}%</span>
+      <div class="layer-info">
+        <div class="layer-name">{layer.name}</div>
+        <div class="layer-meta">{layer.visible ? 'Visible' : 'Hidden'}</div>
+      </div>
+      <input
+        type="checkbox"
+        checked={layer.visible}
+        on:change={() => toggleVisibility(layer.id)}
+        title="Toggle visibility"
+      />
+      <div class="layer-opacity">
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={layer.opacity}
+          on:input={(event) => setOpacity(layer.id, parseFloat(event.currentTarget.value))}
+        />
+        <span>{Math.round(layer.opacity * 100)}%</span>
+      </div>
     </div>
-    <div class="divider"></div>
   {/each}
 </div>
-

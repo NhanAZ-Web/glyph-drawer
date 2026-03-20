@@ -1,13 +1,4 @@
-import type { PixelMatrix, ExportedJSON } from '../types'
-
-export async function parseJsonFile(file: File): Promise<ExportedJSON> {
-  const text = await file.text()
-  const payload = JSON.parse(text)
-  if (!payload.size || !Array.isArray(payload.layers)) {
-    throw new Error('Invalid JSON payload')
-  }
-  return payload as ExportedJSON
-}
+import type { PixelMatrix } from '../types'
 
 export async function pngFileToMatrix(file: File): Promise<PixelMatrix> {
   const url = URL.createObjectURL(file)

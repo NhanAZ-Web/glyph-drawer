@@ -23,10 +23,10 @@
     <span>Tools</span>
     <span class="pill">Pixel-perfect</span>
   </div>
-  <div class="stack">
+  <div class="tool-grid">
     {#each tools as item (item.id)}
       <button
-        class={`btn ${tool === item.id ? 'primary' : ''}`}
+        class={`btn tool-btn ${tool === item.id ? 'primary' : ''}`}
         on:click={() => select(item.id)}
         aria-label={`Select ${item.label}`}
       >
@@ -36,4 +36,25 @@
     {/each}
   </div>
 </div>
+
+<style>
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .tool-btn {
+    width: 100%;
+    justify-content: space-between;
+    min-height: 42px;
+    font-weight: 600;
+  }
+  .tool-btn .kbd {
+    min-width: 24px;
+    justify-content: center;
+  }
+  :global(.tool-btn.primary) {
+    color: #fff;
+  }
+</style>
 

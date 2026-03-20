@@ -32,6 +32,12 @@
     return Math.max(4, Math.floor(available / size))
   }
 
+  function snapPixelSize(raw: number): number {
+    // Avoid fractional physical pixels (e.g. DPR 1.25) that create faint grid seams even when grid is off
+    const dpr = window.devicePixelRatio || 1
+    return Math.max(4, Math.round(raw * dpr) / dpr)
+  }
+
   onMount(() => {
     pixelSize = computePixelSize(state.size)
     renderCanvas(state, previewPoints, hoverCell)
@@ -72,15 +78,16 @@
     void _hover
 
     const size = state.size
-    // Always recompute pixelSize from container to prevent stale values causing OOM
-    pixelSize = computePixelSize(size)
     const scale = window.devicePixelRatio || 1
-    canvas.width = size * pixelSize * scale
-    canvas.height = size * pixelSize * scale
+    // Always recompute pixelSize from container to prevent stale values causing OOM
+    pixelSize = snapPixelSize(computePixelSize(size))
+    const devicePixels = scale * pixelSize
+    canvas.width = size * devicePixels
+    canvas.height = size * devicePixels
     canvas.style.width = `${size * pixelSize}px`
     canvas.style.height = `${size * pixelSize}px`
 
-    context.setTransform(scale * pixelSize, 0, 0, scale * pixelSize, 0, 0)
+    context.setTransform(devicePixels, 0, 0, devicePixels, 0, 0)
     context.imageSmoothingEnabled = false
     context.clearRect(0, 0, size, size)
 

@@ -102,9 +102,10 @@ body {
   line-height: 1.45;
   background-color: var(--bedrock-bg);
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url('/assets/ui/bedrock.png');
-  background-size: 160px 160px, 160px 160px;
+    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/assets/ui/bedrock.png');
+  background-size:
+    160px 160px,
+    160px 160px;
   image-rendering: pixelated;
   overflow-x: hidden;
   animation: moveBackground 100s linear infinite;
@@ -202,7 +203,7 @@ a {
 .app-container {
   position: relative;
   z-index: 1;
-  width: min(1220px, calc(100% - 40px));
+  width: min(1480px, calc(100% - 32px));
   margin: 20px auto;
   padding: 12px;
   background: transparent;
@@ -215,12 +216,26 @@ a {
   box-shadow: none;
 }
 
-.tool-deck {
+.workspace-layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  grid-template-areas:
+    'drawer drawing'
+    'controls drawing';
   gap: 12px;
   align-items: start;
-  margin-bottom: 12px;
+}
+
+.drawer-card {
+  grid-area: drawer;
+}
+
+.drawing-card {
+  grid-area: drawing;
+}
+
+.controls-card {
+  grid-area: controls;
 }
 
 .app-card {
@@ -398,6 +413,19 @@ select:focus {
   gap: 8px;
 }
 
+.drawer-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.drawer-actions .btn {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.drawer-actions .btn:last-child {
+  grid-column: 1 / -1;
+}
+
 .btn,
 .tool-btn,
 .icon-button,
@@ -528,12 +556,6 @@ select:focus {
   height: 46px;
 }
 
-.controls-card .props-panel {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
 .props-panel {
   display: flex;
   flex-direction: column;
@@ -542,6 +564,12 @@ select:focus {
   background: transparent;
   border: 0;
   overflow: visible;
+}
+
+.controls-card .props-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .section {
@@ -787,7 +815,43 @@ input[type='range'] {
 }
 
 .atlas-actions {
+  flex: 1 1 360px;
   justify-content: flex-end;
+}
+
+.zoom-controls {
+  display: grid;
+  grid-template-columns: auto minmax(150px, 220px) auto auto;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.zoom-slider-label {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: auto minmax(90px, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 6px;
+  color: #eeeeee;
+  background: transparent;
+  border-width: 4px 3px;
+  border-style: solid;
+  border-image-source: var(--ui-input-border);
+  border-image-slice: 2 1 2 1 fill;
+  border-image-repeat: stretch;
+}
+
+.zoom-slider-label .detail-text {
+  color: #cfcfcf;
+}
+
+.zoom-slider {
+  min-width: 0;
+}
+
+.zoom-reset {
+  min-width: 58px;
 }
 
 .atlas-info {
@@ -836,31 +900,32 @@ input[type='range'] {
 
 .canvas-area {
   width: 100%;
-  min-height: min(66vh, 700px);
+  height: clamp(460px, calc(100vh - 188px), 780px);
+  min-height: 0;
   display: grid;
   place-items: center;
   background:
     linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
-    #777777;
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%), #777777;
   background-position:
     0 0,
     0 6px,
     6px -6px,
     -6px 0;
   background-size: 12px 12px;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
 }
 
 .canvas-stage-wrapper {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 12px;
+  min-width: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  padding: 16px;
 }
 
 .canvas-stage {
@@ -868,8 +933,20 @@ input[type='range'] {
   display: inline-flex;
   background-color: #8d8d8d;
   background-image:
-    linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.1) 75%),
-    linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.1) 75%);
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.1) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.1) 75%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.1) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.1) 75%
+    );
   background-size: 16px 16px;
   background-position:
     0 0,
@@ -882,6 +959,7 @@ input[type='range'] {
 
 .canvas-board {
   display: block;
+  max-width: none;
   image-rendering: pixelated;
   touch-action: none;
 }
@@ -1080,8 +1158,16 @@ input[type='range'] {
     padding: 10px;
   }
 
-  .tool-deck {
+  .workspace-layout {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'drawer'
+      'drawing'
+      'controls';
+  }
+
+  .controls-card .props-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .drawer-tools-layout {
@@ -1089,14 +1175,16 @@ input[type='range'] {
   }
 
   .canvas-area {
-    min-height: 560px;
+    height: 560px;
   }
 }
 
 @media (max-width: 767px) {
   body {
     font-size: 15px;
-    background-size: 112px 112px, 112px 112px;
+    background-size:
+      112px 112px,
+      112px 112px;
   }
 
   .app-container {
@@ -1119,18 +1207,23 @@ input[type='range'] {
     font-size: 1.12rem;
   }
 
+  .panel-heading > .detail-text {
+    display: none;
+  }
+
   .drawer-tools-layout,
   .controls-card .props-panel,
   .preset-actions,
-  .drawer-actions,
-  .drawer-metrics,
   .export-row {
     grid-template-columns: 1fr;
   }
 
   .toolstrip {
     width: 100%;
-    grid-template-columns: repeat(6, minmax(38px, 1fr));
+    grid-template-columns: repeat(6, minmax(34px, 1fr));
+    grid-auto-rows: 42px;
+    gap: 5px;
+    padding: 6px;
   }
 
   .toolstrip-separator {
@@ -1140,6 +1233,24 @@ input[type='range'] {
   .tool-btn {
     width: 100%;
     min-width: 0;
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .drawer-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-tile {
+    min-height: 64px;
+  }
+
+  .drawer-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .drawer-actions .btn:last-child {
+    grid-column: auto;
   }
 
   .size-grid {
@@ -1158,20 +1269,46 @@ input[type='range'] {
   .atlas-title-group,
   .atlas-actions {
     align-items: stretch;
+    min-width: 0;
   }
 
   .atlas-header {
     flex-direction: column;
   }
 
+  .atlas-actions {
+    flex-basis: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
   .atlas-title-group > *,
-  .atlas-actions > *,
-  .export-btn {
+  .zoom-controls {
     width: 100%;
   }
 
+  .zoom-controls {
+    grid-column: 1 / -1;
+  }
+
+  .color-info,
+  .export-btn {
+    width: auto;
+    min-width: 0;
+  }
+
   .canvas-area {
-    min-height: 430px;
+    height: min(64vh, 430px);
+    place-items: start center;
+  }
+
+  .zoom-controls {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    width: 100%;
+  }
+
+  .zoom-slider-label {
+    min-width: 0;
   }
 
   .footer-links {
@@ -1184,11 +1321,15 @@ input[type='range'] {
 }
 
 @media (max-width: 390px) {
-  .toolstrip {
-    grid-template-columns: repeat(3, minmax(38px, 1fr));
+  .canvas-area {
+    height: 350px;
   }
 
-  .canvas-area {
-    min-height: 350px;
+  .zoom-slider-label {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .zoom-slider-label .detail-text {
+    display: none;
   }
 }

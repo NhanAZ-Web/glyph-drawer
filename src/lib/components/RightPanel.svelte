@@ -213,24 +213,17 @@
 
 <style>
   .custom-size-row {
-    display: flex;
-    gap: 4px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
     align-items: center;
   }
   .custom-size-input {
-    flex: 1;
-    height: 26px;
     min-width: 0;
     text-align: center;
   }
   .export-scale-select {
-    height: 28px;
-    padding: 0 6px;
-    background: var(--panel-alt);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 11px;
+    min-height: 44px;
     font-family: var(--font-mono);
     cursor: pointer;
   }

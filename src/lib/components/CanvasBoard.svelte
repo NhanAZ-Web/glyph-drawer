@@ -26,16 +26,17 @@
 
   function computePixelSize(size: number): number {
     if (!container) return 18
-    const rect = container.getBoundingClientRect()
-    const padding = 16
+    const rect = (container.parentElement ?? container).getBoundingClientRect()
+    const padding = 28
     const available = Math.min(rect.width, rect.height) - padding * 2
-    return Math.max(4, Math.floor(available / size))
+    const fitPixelSize = Math.max(2, Math.floor(available / size))
+    return Math.min(72, Math.max(2, fitPixelSize * (state.zoom / 100)))
   }
 
   function snapPixelSize(raw: number): number {
     // Avoid fractional physical pixels (e.g. DPR 1.25) that create faint grid seams even when grid is off
     const dpr = window.devicePixelRatio || 1
-    return Math.max(4, Math.round(raw * dpr) / dpr)
+    return Math.max(2, Math.round(raw * dpr) / dpr)
   }
 
   onMount(() => {
@@ -109,7 +110,8 @@
 
     if (previewPoints.length) {
       context.globalAlpha = 0.55
-      context.fillStyle = state.tool === 'eraser' ? 'rgba(255,255,255,0.6)' : state.currentColor
+      context.fillStyle =
+        state.tool === 'eraser' ? 'rgba(255,255,255,0.6)' : state.currentColor
       previewPoints.forEach(([x, y]) => {
         context.fillRect(x, y, 1, 1)
       })
@@ -120,7 +122,9 @@
       const lineWidth = 1 / (scale * pixelSize)
 
       // Regular grid lines
-      context.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid')
+      context.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue(
+        '--grid'
+      )
       context.lineWidth = lineWidth
       for (let i = 0; i <= size; i += 1) {
         context.beginPath()
@@ -278,9 +282,21 @@
 
 <style>
   .canvas-stage-wrapper {
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
+    min-width: 100%;
+    min-height: 100%;
+    display: flex;
+    align-items: safe center;
+    justify-content: safe center;
+    padding: 16px;
+  }
+
+  .canvas-board {
+    max-width: none;
+  }
+
+  @media (max-width: 767px) {
+    .canvas-stage-wrapper {
+      align-items: flex-start;
+    }
   }
 </style>

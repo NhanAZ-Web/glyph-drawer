@@ -1,11 +1,22 @@
 import { get, writable } from 'svelte/store'
-import type { EditorState, Layer, LayerId, Pixel, PixelMatrix, Snapshot, Tool } from '../types'
+import type {
+  EditorState,
+  Layer,
+  LayerId,
+  Pixel,
+  PixelMatrix,
+  Snapshot,
+  Tool,
+} from '../types'
 import { createMatrix, resizeMatrix } from '../utils/matrix'
 import { floodFill } from '../utils/fill'
 import { bresenhamLine, rectPoints } from '../utils/geometry'
 import { isValidHex, normalizeHex } from '../utils/color'
 
 const STORAGE_KEY = 'glyph-drawer-state-v1'
+const MIN_ZOOM = 25
+const MAX_ZOOM = 400
+const ZOOM_STEP = 25
 const defaultPalette = [
   '#000000',
   '#0000aa',
@@ -48,7 +59,9 @@ function emptyLayer(id: LayerId, size: number, name: string): Layer {
 }
 
 function deepCopy<T>(value: T): T {
-  return typeof structuredClone === 'function' ? structuredClone(value) : JSON.parse(JSON.stringify(value))
+  return typeof structuredClone === 'function'
+    ? structuredClone(value)
+    : JSON.parse(JSON.stringify(value))
 }
 
 function snapshotFromState(state: EditorState): Snapshot {
@@ -64,10 +77,18 @@ function loadSaved(): EditorState | null {
   try {
     const parsed = JSON.parse(raw) as Snapshot
     const size = parsed.size ?? 32
+    const zoom =
+      typeof parsed.zoom === 'number' && parsed.zoom >= MIN_ZOOM ? parsed.zoom : 100
     const layers = parsed.layers?.length
       ? parsed.layers.map((layer) => ({ ...layer, data: resizeMatrix(layer.data, size) }))
       : [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')]
-    return { ...parsed, size, layers, history: { past: [], future: [] } }
+    return {
+      ...parsed,
+      size,
+      zoom: clampZoom(zoom),
+      layers,
+      history: { past: [], future: [] },
+    }
   } catch (error) {
     console.warn('Failed to load saved state', error)
     return null
@@ -80,12 +101,15 @@ function createInitialState(): EditorState {
   const size = 32
   const base: Snapshot = {
     size,
-    zoom: 18,
+    zoom: 100,
     tool: 'brush',
     palette: defaultPalette,
     currentColor: defaultPalette[0],
     grid: true,
-    layers: [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')],
+    layers: [
+      emptyLayer('background', size, 'Background'),
+      emptyLayer('paint', size, 'Paint'),
+    ],
     activeLayerId: 'paint',
   }
   return { ...base, history: { past: [], future: [] } }
@@ -122,10 +146,18 @@ function commit(mutator: (draft: EditorState) => void, pushHistory = true) {
   })
 }
 
-function updateLayer(state: EditorState, layerId: LayerId, updater: (layer: Layer) => void) {
+function updateLayer(
+  state: EditorState,
+  layerId: LayerId,
+  updater: (layer: Layer) => void
+) {
   const layer = state.layers.find((l) => l.id === layerId)
   if (!layer) return
   updater(layer)
+}
+
+function clampZoom(value: number): number {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(value)))
 }
 
 function withinBounds(size: number, x: number, y: number): boolean {
@@ -189,7 +221,10 @@ export const canvasStore = {
   },
   setSize(size: number) {
     store.update((state) => {
-      const next = deepCopy({ ...state, history: { past: [], future: [] } }) as EditorState
+      const next = deepCopy({
+        ...state,
+        history: { past: [], future: [] },
+      }) as EditorState
       next.size = size
       next.layers = next.layers.map((layer) => ({
         ...layer,
@@ -202,6 +237,26 @@ export const canvasStore = {
   toggleGrid() {
     commit((draft) => {
       draft.grid = !draft.grid
+    }, false)
+  },
+  setZoom(value: number) {
+    commit((draft) => {
+      draft.zoom = clampZoom(value)
+    }, false)
+  },
+  zoomIn() {
+    commit((draft) => {
+      draft.zoom = clampZoom(draft.zoom + ZOOM_STEP)
+    }, false)
+  },
+  zoomOut() {
+    commit((draft) => {
+      draft.zoom = clampZoom(draft.zoom - ZOOM_STEP)
+    }, false)
+  },
+  resetZoom() {
+    commit((draft) => {
+      draft.zoom = 100
     }, false)
   },
   setActiveLayer(id: LayerId) {
@@ -244,7 +299,10 @@ export const canvasStore = {
   },
   clear() {
     commit((draft) => {
-      draft.layers = draft.layers.map((layer) => ({ ...layer, data: createMatrix(draft.size) }))
+      draft.layers = draft.layers.map((layer) => ({
+        ...layer,
+        data: createMatrix(draft.size),
+      }))
     })
   },
   undo() {
@@ -262,7 +320,10 @@ export const canvasStore = {
       if (!state.history.future.length) return state
       const [nextSnapshot, ...rest] = state.history.future
       const past = [...state.history.past, snapshotFromState(state)]
-      const next: EditorState = { ...deepCopy(nextSnapshot), history: { past, future: rest } }
+      const next: EditorState = {
+        ...deepCopy(nextSnapshot),
+        history: { past, future: rest },
+      }
       return next
     })
   },
@@ -279,10 +340,14 @@ export const canvasStore = {
   newDocument(size = 32) {
     commit((draft) => {
       draft.size = size
-      draft.layers = [emptyLayer('background', size, 'Background'), emptyLayer('paint', size, 'Paint')]
+      draft.layers = [
+        emptyLayer('background', size, 'Background'),
+        emptyLayer('paint', size, 'Paint'),
+      ]
       draft.palette = defaultPalette
       draft.currentColor = defaultPalette[0]
       draft.tool = 'brush'
+      draft.zoom = 100
       draft.history = { past: [], future: [] }
     })
   },

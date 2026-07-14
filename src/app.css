@@ -95,7 +95,7 @@ body {
 }
 
 body {
-  min-width: 320px;
+  min-width: 0;
   color: var(--text-primary);
   font-family: var(--font);
   font-size: 16px;
@@ -902,8 +902,7 @@ input[type='range'] {
   width: 100%;
   height: clamp(460px, calc(100vh - 188px), 780px);
   min-height: 0;
-  display: grid;
-  place-items: center;
+  display: block;
   background:
     linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
@@ -976,6 +975,82 @@ input[type='range'] {
   min-height: 44px;
   color: var(--button-text);
   text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  html,
+  body {
+    overflow: hidden;
+  }
+
+  #app {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app-container {
+    height: calc(100vh - 24px);
+    height: calc(100dvh - 24px);
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 8px;
+    margin: 12px auto;
+    overflow: hidden;
+  }
+
+  .workspace-layout {
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .drawer-card,
+  .drawing-card,
+  .controls-card {
+    min-height: 0;
+  }
+
+  .drawing-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .atlas-header {
+    flex: 0 0 auto;
+  }
+
+  .atlas-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+  }
+
+  .canvas-area {
+    flex: 1 1 auto;
+    height: auto;
+  }
+
+  .controls-card {
+    overflow: hidden;
+  }
+
+  .controls-card .props-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-right: 4px;
+    overflow: auto;
+    align-content: start;
+  }
+
+  .footer-links {
+    margin: 0 0 2px;
+  }
+
+  .footer-links a {
+    min-height: 36px;
+    padding: 4px 12px;
+  }
 }
 
 .toast-stack {
@@ -1220,7 +1295,7 @@ input[type='range'] {
 
   .toolstrip {
     width: 100%;
-    grid-template-columns: repeat(6, minmax(34px, 1fr));
+    grid-template-columns: repeat(4, minmax(40px, 1fr));
     grid-auto-rows: 42px;
     gap: 5px;
     padding: 6px;
@@ -1246,11 +1321,11 @@ input[type='range'] {
   }
 
   .drawer-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .drawer-actions .btn:last-child {
-    grid-column: auto;
+    grid-column: 1 / -1;
   }
 
   .size-grid {
@@ -1279,7 +1354,7 @@ input[type='range'] {
   .atlas-actions {
     flex-basis: auto;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .atlas-title-group > *,
@@ -1303,12 +1378,22 @@ input[type='range'] {
   }
 
   .zoom-controls {
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    width: 100%;
+  }
+
+  .zoom-reset {
+    grid-column: 1 / -1;
     width: 100%;
   }
 
   .zoom-slider-label {
     min-width: 0;
+  }
+
+  .color-info,
+  .export-btn {
+    width: 100%;
   }
 
   .footer-links {
@@ -1321,6 +1406,10 @@ input[type='range'] {
 }
 
 @media (max-width: 390px) {
+  .toolstrip {
+    grid-template-columns: repeat(3, minmax(42px, 1fr));
+  }
+
   .canvas-area {
     height: 350px;
   }

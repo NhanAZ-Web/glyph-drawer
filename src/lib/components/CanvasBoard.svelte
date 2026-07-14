@@ -282,11 +282,14 @@
 
 <style>
   .canvas-stage-wrapper {
+    width: max-content;
+    height: max-content;
     min-width: 100%;
     min-height: 100%;
     display: flex;
-    align-items: safe center;
-    justify-content: safe center;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
     padding: 16px;
   }
 

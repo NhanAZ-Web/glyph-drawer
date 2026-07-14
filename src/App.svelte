@@ -87,94 +87,92 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="main-shell">
-  <!-- Menu Bar -->
-  <div class="menubar">
-    <div class="brand">
-      <span class="brand-dot"></span>
-      <span>glyph-drawer</span>
-      <span class="brand-badge">EDITOR</span>
-    </div>
-    <div class="menubar-actions">
-      <button
-        class={`btn ghost ${state.grid ? 'active' : ''}`}
-        aria-pressed={state.grid}
-        on:click={() => canvasStore.toggleGrid()}
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          ><path d="M3 3v18h18" /><path d="M9 3v18" /><path d="M15 3v18" /><path
-            d="M3 9h18"
-          /><path d="M3 15h18" /></svg
-        >
-        Grid
-      </button>
-      <button class="btn ghost" on:click={() => themeStore.toggle()}>
-        {#if theme === 'light'}
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            ><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" /></svg
-          >
-        {:else}
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            ><circle cx="12" cy="12" r="5" /><path
-              d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-            /></svg
-          >
-        {/if}
-      </button>
-    </div>
+<div class="app-container">
+  <div class="tool-deck drawer-tool-deck">
+    <section class="app-card tool-card drawer-card">
+      <div class="panel-heading">
+        <h2>Glyph Drawer</h2>
+        <span class="detail-text">Pixel workspace</span>
+      </div>
+
+      <div class="drawer-tools-layout">
+        <Sidebar {state} />
+
+        <div class="drawer-quick-panel">
+          <div class="field-block">
+            <span class="form-label detail-text">Active tool</span>
+            <div class="app-input readonly-field">{capitalize(state.tool)}</div>
+          </div>
+
+          <div class="drawer-metrics" aria-label="Current document">
+            <div class="metric-tile">
+              <span class="metric-label">Canvas</span>
+              <span class="metric-value">{state.size}&times;{state.size}</span>
+            </div>
+            <div class="metric-tile">
+              <span class="metric-label">Layers</span>
+              <span class="metric-value">{state.layers.length}</span>
+            </div>
+          </div>
+
+          <div class="preset-actions drawer-actions">
+            <button
+              class={`btn btn-sm pill-action ${state.grid ? 'active' : ''}`}
+              aria-pressed={state.grid}
+              on:click={() => canvasStore.toggleGrid()}
+            >
+              Grid
+            </button>
+            <button class="btn btn-sm pill-action" on:click={() => themeStore.toggle()}>
+              {theme === 'light' ? 'Dark' : 'Light'}
+            </button>
+            <button class="btn btn-sm pill-action" on:click={quickExportPng}>
+              Export PNG
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="app-card tool-card controls-card">
+      <div class="panel-heading">
+        <h2>Controls</h2>
+        <span class="detail-text">Palette, layers, files</span>
+      </div>
+      <RightPanel {state} />
+    </section>
   </div>
 
-  <!-- Left Toolstrip -->
-  <Sidebar {state} />
-
-  <!-- Center Canvas -->
-  <div class="canvas-area">
-    <CanvasBoard />
-  </div>
-
-  <!-- Right Properties -->
-  <RightPanel {state} />
-
-  <!-- Status Bar -->
-  <div class="statusbar">
-    <div class="statusbar-item">
-      <span>Tool:</span>
-      <span class="statusbar-accent">{capitalize(state.tool)}</span>
+  <section class="app-card atlas-card drawing-card">
+    <div class="atlas-header">
+      <div class="atlas-title-group">
+        <h2>Drawing Output</h2>
+        <span class="atlas-info">glyph-{state.size}.png - {state.size}px &times; {state.size}px</span>
+      </div>
+      <div class="atlas-actions">
+        <span class="atlas-info color-info">
+          <span class="statusbar-color-swatch" style="background:{state.currentColor};"></span>
+          {state.currentColor}
+        </span>
+        <button class="btn btn-sm export-btn" on:click={quickExportPng}>Download</button>
+      </div>
     </div>
-    <div class="statusbar-item">
-      <span>Canvas:</span>
-      <span class="statusbar-accent">{state.size}×{state.size}</span>
+
+    <div class="atlas-body">
+      <div class="canvas-area">
+        <CanvasBoard />
+      </div>
     </div>
-    <div class="statusbar-item">
-      <span>Color:</span>
-      <span class="statusbar-color-swatch" style="background:{state.currentColor};"
-      ></span>
-      <span class="statusbar-accent" style="font-family: var(--font-mono);"
-        >{state.currentColor}</span
-      >
-    </div>
-  </div>
+  </section>
+
+  <footer class="footer-links">
+    <a href="https://github.com/NhanAZ/glyph" target="_blank" rel="noopener noreferrer">
+      Glyph Tools
+    </a>
+    <a href="https://github.com/NhanAZ/glyph-drawer" target="_blank" rel="noopener noreferrer">
+      glyph-drawer
+    </a>
+  </footer>
 </div>
 
 <ToastStack />

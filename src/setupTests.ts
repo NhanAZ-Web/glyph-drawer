@@ -26,7 +26,8 @@ HTMLCanvasElement.prototype.getContext = ((contextId: string) => {
   return null
 }) as unknown as typeof HTMLCanvasElement.prototype.getContext
 
-HTMLCanvasElement.prototype.toDataURL = () => 'data:image/png;base64,'
+HTMLCanvasElement.prototype.toDataURL = () =>
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='
 
 if (!window.matchMedia) {
   window.matchMedia = () =>

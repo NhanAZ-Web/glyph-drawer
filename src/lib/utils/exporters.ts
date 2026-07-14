@@ -1,5 +1,5 @@
 import { combineVisibleLayers } from './matrix'
-import type { PixelMatrix } from '../types'
+import type { PixelMatrix, Snapshot } from '../types'
 import { hexToRgba } from './color'
 
 export function matrixToPng(matrix: PixelMatrix, scale = 1): Blob {
@@ -10,7 +10,7 @@ export function matrixToPng(matrix: PixelMatrix, scale = 1): Blob {
   ctxCanvas.width = outSize
   ctxCanvas.height = outSize
   const ctx = ctxCanvas.getContext?.('2d')
-  if (!ctx || typeof ImageData === 'undefined') {
+  if (!ctx) {
     return new Blob([], { type: 'image/png' })
   }
   ctx.imageSmoothingEnabled = false
@@ -32,7 +32,7 @@ export function matrixToPng(matrix: PixelMatrix, scale = 1): Blob {
   return new Blob([buffer], { type: 'image/png' })
 }
 
-export function visibleMatrixFromSnapshot(snapshot: { layers: { visible: boolean; opacity: number; data: PixelMatrix }[] }): PixelMatrix {
+export function visibleMatrixFromSnapshot(snapshot: Pick<Snapshot, 'layers'>): PixelMatrix {
   return combineVisibleLayers(snapshot.layers)
 }
 

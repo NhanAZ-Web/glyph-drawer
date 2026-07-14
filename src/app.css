@@ -1004,7 +1004,7 @@ input[type='range'] {
     min-height: 0;
     grid-template-areas:
       'drawer drawing'
-      'controls controls';
+      'controls drawing';
     grid-template-rows: auto auto;
     align-items: stretch;
   }
@@ -1050,7 +1050,7 @@ input[type='range'] {
     padding-right: 0;
     overflow: visible;
     align-content: start;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .footer-links {
@@ -1060,38 +1060,6 @@ input[type='range'] {
   .footer-links a {
     min-height: 36px;
     padding: 4px 12px;
-  }
-}
-
-@media (min-width: 1400px) {
-  .workspace-layout {
-    grid-template-columns: minmax(360px, 380px) minmax(0, 1fr) minmax(440px, 460px);
-    grid-template-areas: 'drawer drawing controls';
-    grid-template-rows: auto;
-  }
-
-  .controls-card .props-panel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .controls-card .section:first-child .size-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .atlas-actions {
-    gap: 6px;
-  }
-
-  .zoom-controls {
-    grid-template-columns: auto minmax(100px, 160px) auto auto;
-  }
-
-  .zoom-slider-label {
-    gap: 6px;
-  }
-
-  .zoom-reset {
-    min-width: 50px;
   }
 }
 
